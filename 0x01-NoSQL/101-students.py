@@ -15,7 +15,7 @@ def top_students(mongo_collection):
     for doc in students_docs:
         topics = doc["topics"]
 
-        total_score = sum(topic['score'] for topic in topics)
+        total_score = sum(topic["score"] for topic in topics)
         average_score = total_score / len(topics)
 
         student_info = {
@@ -27,6 +27,6 @@ def top_students(mongo_collection):
         students_info.append(student_info)
 
     students_info = sorted(
-      students_info, key=lambda x: x['averageScore'], reverse=True)
+      students_info, key=lambda x: x["averageScore"], reverse=True)
 
     return students_info
