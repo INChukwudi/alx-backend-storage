@@ -27,3 +27,5 @@ if __name__ == "__main__":
     status_count = nginx_collection.count_documents(
       {"method": "GET", "path": "/status"})
     print("{} status check".format(status_count))
+
+    client.close()
