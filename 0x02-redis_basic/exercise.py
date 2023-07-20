@@ -8,7 +8,34 @@ File bears the Cache class
 
 import redis
 import uuid
+from functools import wraps
 from typing import Callable, Union
+
+
+def count_calls(method: Callable) -> Callable:
+    """
+    decorator function to keep track of the number of times
+    a method is called
+
+    Args:
+    method - the method to keep track of
+
+    Return:
+    value - nested function that handles the decorator call
+    """
+    @wraps(method)
+    def wrapped(self, *args, **kwargs):
+        """
+        nested function that keep track of the method calls
+
+        Return:
+        value - return value after a call to the method
+        """
+        key = method.__qualname__
+        self._redis.incr(key)
+        return method(self, *args, **kwargs)
+
+    return wrapped
 
 
 class Cache:
@@ -24,6 +51,7 @@ class Cache:
         self._redis = redis.Redis()
         self._redis.flushdb()
 
+    @count_calls
     def store(self, data: Union[str, bytes, int, float]) -> str:
         """
         Stores the input data in Redis using a random key
