@@ -1,5 +1,10 @@
 #!/usr/bin/env python3
 
+"""
+File bearing the get_page function
+also bears its related decorator
+"""
+
 import requests
 import redis
 import time
@@ -14,7 +19,10 @@ def cache_content_and_count_calls(method: Callable):
     """decorator to cach content and count the calls"""
     @wraps(method)
     def wrapper(url: str) -> str:
-        """method the handles execution"""
+        """
+        method the handles the method execution
+        """
+        redis_client.incr("count:{}".format(url))
         cached_result = redis_client.get("cached:{}".format(url))
         if cached_result:
             return cached_result.decode('utf-8')
@@ -22,8 +30,7 @@ def cache_content_and_count_calls(method: Callable):
         response = method(url)
         content = response.text
 
-        redis_client.setex("cached:{}".format(url), 10, content)
-        redis_client.incr("count:{}".format(url))
+        redis_client.set("cached:{}".format(url), content, ex=10)
 
         return content
 
