@@ -3,7 +3,7 @@
 """
 Exercise File
 
-File bears the Cache class
+File bears the Cache class and other related functions
 """
 
 import redis
@@ -37,6 +37,7 @@ def count_calls(method: Callable) -> Callable:
 
     return wrapped
 
+
 def call_history(method: Callable) -> Callable:
     """
     decorator function to keep track of the inputs and outputs
@@ -67,6 +68,24 @@ def call_history(method: Callable) -> Callable:
         return output
 
     return wrapped
+
+
+def replay(method: Callable):
+    """
+    function to display the history of calls of a particular function
+    """
+    key = method.__qualname__
+    inputs_key = "{}:inputs".format(key)
+    outputs_key = "{}:outputs".format(key)
+
+    inputs = redis.Redis().lrange(inputs_key, 0, -1)
+    outputs = redis.Redis().lrange(outputs_key, 0, -1)
+
+    print("{} was called {} times:".format(key, len(inputs)))
+    for i, input in enumerate(inputs):
+        input_args = eval(input)
+        output = outputs[i]
+        print("{}{} -> {}".format(key, input_args, output))
 
 
 class Cache:
